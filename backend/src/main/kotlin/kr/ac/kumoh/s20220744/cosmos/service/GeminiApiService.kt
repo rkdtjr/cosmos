@@ -32,15 +32,11 @@ class GeminiApiService(
     fun analyzeSpaceImage(imageUrl: String?, description: String?): Pair<Boolean, List<String>> {
         if (imageUrl.isNullOrBlank()) return false to emptyList()
 
-        val client = Client
-            .builder()
-            .apiKey(apiKey)
-            .build()
+        val client = Client.builder().apiKey(apiKey).build()
 
         val prompt = """
         You are an astronomy expert.
-        Determine whether the image from the following URL is an astronomy or space-related image
-        such as nebula, galaxy, star cluster, planet, comet, moon, ISS, or telescope capture.
+        Determine whether the image from the following URL is an astronomy or space-related image.
 
         NASA Metadata:
         $description
@@ -49,49 +45,41 @@ class GeminiApiService(
         $imageUrl
 
         Output Format:
-        1) First line: "yes" or "no" only.
-        2) Second line: If yes, output 3~5 descriptive tags in a JSON array format.
-           Example: ["nebula", "infrared", "Hubble", "star formation"]
+        1) yes / no
+        2) If yes, output 3~5 descriptive tags in a JSON array format
     """.trimIndent()
 
-        // --------- 요청 제한 + 자동 재시도 Backoff ---------
-        var delayMs = 1000L
-        repeat(5) { attempt ->
-            try {
-                val response: GenerateContentResponse = client.models.generateContent(
-                    "gemini-2.5-flash-lite",
-                    prompt,
-                    /* safety settings */ null
-                )
+        return try {
+            val response: GenerateContentResponse = client.models.generateContent(
+                "gemini-2.5-flash-lite",
+                prompt,
+                null
+            )
 
-                val raw = response.text()?.trim() ?: ""
-                val lines = raw.split("\n")
-                val isSpace = lines.firstOrNull()?.lowercase() == "yes"
+            val raw = response.text()?.trim().orEmpty()
+            val lines = raw.split("\n")
+            val isSpace = lines.firstOrNull()?.lowercase() == "yes"
 
-                val tags = if (isSpace && lines.size > 1) {
-                    try {
-                        jacksonObjectMapper().readValue(lines[1], List::class.java)
-                            .map { it.toString() }
-                    } catch (_: Exception) {
-                        emptyList()
-                    }
-                } else emptyList()
-
-                return isSpace to tags
-
-            } catch (e: Exception) {
-                if (e.message?.contains("429") == true) {
-                    println("⚠️ Rate limit — retry in $delayMs ms (attempt ${attempt + 1}/5)")
-                    Thread.sleep(delayMs)
-                    delayMs *= 2
-                } else {
-                    println("❌ Unexpected error: $e")
-                    return false to emptyList()
+            val tags = if (isSpace && lines.size > 1) {
+                try {
+                    jacksonObjectMapper().readValue(lines[1], List::class.java)
+                        .map { it.toString() }
+                } catch (_: Exception) {
+                    emptyList()
                 }
-            }
-        }
+            } else emptyList()
 
-        return false to emptyList()
+            isSpace to tags
+
+        } catch (e: Exception) {
+            if (e.message?.contains("429") == true) {
+                println("⚠️ Rate limited — skipping.")
+            } else {
+                println("❌ Error: ${e.message}")
+            }
+            false to emptyList()
+        }
     }
+
 
 }

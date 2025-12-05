@@ -12,28 +12,22 @@ import java.time.LocalDate
 class APODService(
     private val apodRepository: APODReposiotry
 ) {
-    @Value("\${nasa.apiKey}")
-    lateinit var apiKey: String
-    val rest = RestTemplate()
-
     fun getAPOD(date: String?): APOD {
         val targetDate = date ?: LocalDate.now().minusDays(1).toString()
 
-        return apodRepository.findById(targetDate).orElse(null) ?: fetchAndSaveAPOD(targetDate)
+        return apodRepository.findById(targetDate).orElse(null) ?: fetchAndSave(targetDate)
     }
 
-    private fun fetchAndSaveAPOD(date: String): APOD {
-        val url = "https://api.nasa.gov/planetary/apod?api_key=$apiKey&date=$date"
-        val nasa = rest.getForObject(url, APODApiResponse::class.java)
-            ?: throw IllegalStateException("NASA APOD API returned null")
+    private fun fetchAndSave(date: String): APOD {
+        val nasaRes = nasa.fetchAPOD(date)
 
         val apod = APOD(
             date = date,
-            title = nasa.title,
-            explanation = nasa.explanation,
-            url = nasa.url,
-            hdurl = nasa.hdurl,
-            copyright = nasa.copyright
+            title = nasaRes.title,
+            explanation = nasaRes.explanation,
+            url = nasaRes.url,
+            hdurl = nasaRes.hdurl,
+            copyright = nasaRes.copyright
         )
 
         return apodRepository.save(apod)

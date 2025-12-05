@@ -10,7 +10,8 @@ import java.time.LocalDate
 
 @Service
 class APODService(
-    private val apodRepository: APODReposiotry
+    private val apodRepository: APODReposiotry,
+    private val nasa: NasaApiService
 ) {
     fun getAPOD(date: String?): APOD {
         val targetDate = date ?: LocalDate.now().minusDays(1).toString()

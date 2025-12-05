@@ -3,11 +3,9 @@ package kr.ac.kumoh.s20220744.cosmos.controller
 import kr.ac.kumoh.s20220744.cosmos.model.SpaceImage
 import kr.ac.kumoh.s20220744.cosmos.service.SpaceImageService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
+@CrossOrigin(origins = ["http://localhost:5173", "https://rkdtjr.github.io"])
 @RestController
 @RequestMapping("/api/gallery")
 class SpaceImageController(

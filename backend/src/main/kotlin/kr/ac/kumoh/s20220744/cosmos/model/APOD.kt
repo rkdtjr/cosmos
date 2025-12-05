@@ -11,5 +11,6 @@ data class APOD(
     val explanation: String,
     val url: String?,
     val hdurl: String?,
+    val copyright: String?,
     val cachedAt: LocalDateTime = LocalDateTime.now()
 )

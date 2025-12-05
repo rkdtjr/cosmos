@@ -1,6 +1,8 @@
 package kr.ac.kumoh.s20220744.cosmos.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.genai.Client
+import com.google.genai.types.GenerateContentResponse
 import kr.ac.kumoh.s20220744.cosmos.repository.SpaceImageRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
@@ -16,77 +18,80 @@ class GeminiApiService(
 ) {
     @Async
     fun analyzeAsync(nasaId: String, imageUrl: String, description: String?) {
-        try {
-            val (isSpace, tags) = analyzeSpaceImage(imageUrl, description)
-            val image = spaceImageRepository.findById(nasaId).orElse(null) ?: return
+        val (isSpace, tags) = analyzeSpaceImage(imageUrl, description)
 
-            val updated = image.copy(
-                tags = tags,
-                status = if (isSpace) "DONE" else "FAILED"
-            )
-            spaceImageRepository.save(updated)
+        val image = spaceImageRepository.findById(nasaId).orElse(null) ?: return
 
-        } catch (e: Exception) {
-            val image = spaceImageRepository.findById(nasaId).orElse(null) ?: return
-            val updated = image.copy(status = "RETRY")
-            spaceImageRepository.save(updated)
-        }
+        val updated = image.copy(
+            tags = tags,
+            status = if (isSpace) "DONE" else "FAILED"
+        )
+
+        spaceImageRepository.save(updated)
     }
     fun analyzeSpaceImage(imageUrl: String?, description: String?): Pair<Boolean, List<String>> {
         if (imageUrl.isNullOrBlank()) return false to emptyList()
 
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=$apiKey"
+        val client = Client
+            .builder()
+            .apiKey(apiKey)
+            .build()
 
         val prompt = """
-            You are an astronomy expert.
-            Determine whether the uploaded image is an astronomy / space related image
-            such as nebula, galaxy, star cluster, planet, comet, moon, ISS, or telescope capture.
-            
-            Here is metadata information from NASA:
-            $description
-            
-            1) Answer only "yes" or "no" on the first line.
-            2) If yes, output 3~5 descriptive tags in a JSON array format.
-            """.trimIndent()
+        You are an astronomy expert.
+        Determine whether the image from the following URL is an astronomy or space-related image
+        such as nebula, galaxy, star cluster, planet, comet, moon, ISS, or telescope capture.
 
+        NASA Metadata:
+        $description
 
-        val requestBody = mapOf(
-            "contents" to listOf(
-                mapOf(
-                    "parts" to listOf(
-                        mapOf("text" to prompt),
-                        mapOf("image_url" to imageUrl)
-                    )
-                )
-            )
-        )
+        Image URL:
+        $imageUrl
 
+        Output Format:
+        1) First line: "yes" or "no" only.
+        2) Second line: If yes, output 3~5 descriptive tags in a JSON array format.
+           Example: ["nebula", "infrared", "Hubble", "star formation"]
+    """.trimIndent()
 
-        val responseBody = restClient.post()
-            .uri(url)
-            .body(requestBody)
-            .retrieve()
-            .body(Map::class.java) ?: return false to emptyList()
-
-        val candidates = responseBody["candidates"] as? List<*> ?: return false to emptyList()
-        val first = candidates.firstOrNull() as? Map<*, *> ?: return false to emptyList()
-        val content = first["content"] as? Map<*, *> ?: return false to emptyList()
-        val parts = content["parts"] as? List<*> ?: return false to emptyList()
-        val text = (parts.firstOrNull() as? Map<*, *>)?.get("text")?.toString()?.trim() ?: ""
-
-        val lines = text.split("\n")
-        val isSpace = lines.firstOrNull()?.lowercase() == "yes"
-
-        val tags = if (isSpace && lines.size > 1) {
+        // --------- 요청 제한 + 자동 재시도 Backoff ---------
+        var delayMs = 1000L
+        repeat(5) { attempt ->
             try {
-                jacksonObjectMapper()
-                    .readValue(lines[1], List::class.java)
-                    .map { it.toString() }
-            } catch (e: Exception) {
-                emptyList()
-            }
-        } else emptyList()
+                val response: GenerateContentResponse = client.models.generateContent(
+                    "gemini-2.5-flash-lite",
+                    prompt,
+                    /* safety settings */ null
+                )
 
-        return isSpace to tags
+                val raw = response.text()?.trim() ?: ""
+                val lines = raw.split("\n")
+                val isSpace = lines.firstOrNull()?.lowercase() == "yes"
+
+                val tags = if (isSpace && lines.size > 1) {
+                    try {
+                        jacksonObjectMapper().readValue(lines[1], List::class.java)
+                            .map { it.toString() }
+                    } catch (_: Exception) {
+                        emptyList()
+                    }
+                } else emptyList()
+
+                return isSpace to tags
+
+            } catch (e: Exception) {
+                if (e.message?.contains("429") == true) {
+                    println("⚠️ Rate limit — retry in $delayMs ms (attempt ${attempt + 1}/5)")
+                    Thread.sleep(delayMs)
+                    delayMs *= 2
+                } else {
+                    println("❌ Unexpected error: $e")
+                    return false to emptyList()
+                }
+            }
+        }
+
+        return false to emptyList()
     }
+
 }

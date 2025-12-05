@@ -1,1 +1,1 @@
-rootProject.name = "cosmos"
+rootProject.name = "backend"

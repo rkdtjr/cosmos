@@ -6,3 +6,5 @@ spring:
       uri: ${MONGODB_URI}
 nasa:
   apiKey: ${NASA_API_KEY}
+gemini:
+  apiKey: ${GEMINI_API_KEY}

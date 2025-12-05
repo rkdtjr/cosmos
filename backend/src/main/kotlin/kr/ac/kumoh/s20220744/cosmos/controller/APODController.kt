@@ -1,7 +1,7 @@
 package kr.ac.kumoh.s20220744.cosmos.controller
 
 import kr.ac.kumoh.s20220744.cosmos.model.APOD
-import kr.ac.kumoh.s20220744.cosmos.sevice.APODService
+import kr.ac.kumoh.s20220744.cosmos.service.APODService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

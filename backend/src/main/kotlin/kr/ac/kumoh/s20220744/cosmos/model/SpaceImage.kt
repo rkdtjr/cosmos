@@ -12,5 +12,7 @@ data class SpaceImage(
     val previewUrl: String?,
     val originalUrl: String?,
     val tags: List<String> = emptyList(),
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: String? = null,
+    val cachedAt: String = LocalDateTime.now().toString(),
+    val status: String = "PENDING"
 )

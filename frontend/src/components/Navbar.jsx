@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 export default function Navbar() {
   return (
@@ -7,7 +7,8 @@ export default function Navbar() {
       style={{ background: "linear-gradient(90deg, #0a0f24, #071a33, #0a2146)" }}
     >
       <div className="font-bold text-2xl text-cyan-300">
-        Cosmos
+        <Link to="/">
+          Cosmos</Link>
       </div>
 
       <div className="flex gap-10 ml-auto text-lg">
@@ -19,7 +20,6 @@ export default function Navbar() {
           }
         >
           Home
-          <span className="absolute left-0 right-0 bottom-0 h-[2px] bg-cyan-300 transition-all duration-300"></span>
         </NavLink>
 
         <NavLink

@@ -1,5 +1,6 @@
 package kr.ac.kumoh.s20220744.cosmos.controller
 
+import kr.ac.kumoh.s20220744.cosmos.dto.DictionaryListDto
 import kr.ac.kumoh.s20220744.cosmos.model.Dictionary
 import kr.ac.kumoh.s20220744.cosmos.service.DictionaryService
 import org.springframework.http.ResponseEntity
@@ -12,8 +13,11 @@ class DictionaryController(
     private val dictionaryService: DictionaryService
 ) {
     @GetMapping
-    fun getDictionaryList(): ResponseEntity<List<Dictionary>> = ResponseEntity.ok(dictionaryService.getDictionaryList())
+    @GetMapping("/dictionary")
+    fun list(): List<DictionaryListDto> =
+        dictionaryService.getDictionaryList()
 
-    @GetMapping("/{id}")
-    fun getDictionaryDetail(@PathVariable id: String): ResponseEntity<Dictionary> = ResponseEntity.ok(dictionaryService.getDictionaryDetial(id))
+    @GetMapping("/dictionary/{id}")
+    fun detail(@PathVariable id: String) =
+        dictionaryService.getDictionaryDetail(id)
 }

@@ -35,19 +35,27 @@ class GeminiApiService(
         val client = Client.builder().apiKey(apiKey).build()
 
         val prompt = """
-        You are an astronomy expert.
-        Determine whether the image from the following URL is an astronomy or space-related image.
-
-        NASA Metadata:
-        $description
-
-        Image URL:
-        $imageUrl
-
-        Output Format:
-        1) yes / no
-        2) If yes, output 3~5 descriptive tags in a JSON array format
-    """.trimIndent()
+            You are an astronomy domain expert with deep knowledge of space imagery.
+            Strictly determine whether the image described below is clearly an astronomy or space-related image.
+            
+            Classify an image as space-related if it contains any of the following:
+            - Stars, galaxies, nebulae, star clusters, wide star fields, deep field exposures
+            - Planets, moons, comets, asteroids
+            - Space telescopes (Hubble, JWST, ISS), spacecraft, rocket launches, observatories
+            - Outer space background (dark sky with dense stars)
+            
+            Even if the image is faint or low-resolution, consider deep field star images as space images.
+            
+            NASA Metadata:
+            $description
+            
+            Image URL:
+            $imageUrl
+            
+            Output format:
+            1) "yes" or "no" only in the first line
+            2) If yes, output 3–5 short descriptive tags in JSON array format on the second line
+            """.trimIndent()
 
         return try {
             val response: GenerateContentResponse = client.models.generateContent(
@@ -68,7 +76,7 @@ class GeminiApiService(
                     emptyList()
                 }
             } else emptyList()
-
+            println("Tagging Success")
             isSpace to tags
 
         } catch (e: Exception) {

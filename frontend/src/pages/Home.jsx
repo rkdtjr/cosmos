@@ -30,15 +30,19 @@ function Home() {
       </div>
 
 
-      <div className="w-full flex flex-col bg-[#0d1b2a] md:flex-row items-stretch justify-between max-w-[1500px] mx-auto gap-1 mt-10 border border-gray-600 rounded-xl">
 
-        <div className="flex-shrink-0">
+      <div className="w-full flex flex-col bg-[#0d1b2a] md:flex-row items-center justify-between max-w-[1500px] mx-auto gap-1 mt-10 border border-gray-600 rounded-xl">
+
+
+        <div className="flex-shrink-0 flex items-center justify-center bg-black h-[600px] w-full md:w-[55%] rounded-l-xl">
           <img
             src={data.hdurl || data.url}
             alt={data.title}
-            className="rounded-lg shadow-lg max-h-[600px] object-contain"
+            className="object-contain max-h-full max-w-full"
           />
         </div>
+
+
 
         <div className="flex flex-col justify-between">
           <h2 className="text-3xl font-bold mb-4">

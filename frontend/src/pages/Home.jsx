@@ -19,12 +19,13 @@ function Home() {
   return (
     <>
       <div className="text-center mt-20">
-        <h1 className="text-7xl font-extrabold tracking-wide text-[#00e5ff]">
-          Cosmos
+        <h1 className="text-5xl font-extrabold tracking-wide text-[#009bb0]">
+          Space Image Explorer
         </h1>
 
         <p className="mt-4 text-gray-300 text-lg max-w-[700px] mx-auto leading-relaxed">
-          어쩌고 저쩌고 설명 잔뜩
+          NASA API, GEMINI API 기반으로 작동하는 우주 이미지 탐색 사이트입니다.<br />
+          웹 서버 프로그래밍 Term Project로 진행하였습니다.
         </p>
       </div>
 
@@ -52,6 +53,9 @@ function Home() {
         </div>
 
       </div>
+      <p className="text-xs text-gray-400 text-center mt-4">
+        © 2025 Cosmos. Image credits: NASA / ESA / STScI. Powered by NASA Open APIs & Google Gemini.
+      </p>
 
 
     </>

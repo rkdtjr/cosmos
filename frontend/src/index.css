@@ -1,15 +1,14 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 html,
 body,
 #root {
   height: 100%;
-  background: transparent;
+  margin: 0;
+  padding: 0;
 }
 
-/* 전체 배경 파란색 */
 body {
-  background-color: #0a0f24;
-  /* 원하는 파랑 HEX 입력 */
+  background-color: #060b17;
   color: white;
 }

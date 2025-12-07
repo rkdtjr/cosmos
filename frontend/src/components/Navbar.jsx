@@ -4,9 +4,12 @@ export default function Navbar() {
   return (
     <nav
       className="fixed top-0 left-0 w-full px-8 py-4 text-white flex items-center z-50"
-      style={{ background: "linear-gradient(90deg, #0a0f24, #071a33, #0a2146)" }}
+      style={{
+        background: "linear-gradient(90deg, #05070F, #0D2B55, #041020)"
+      }}
+
     >
-      <div className="font-bold text-2xl text-cyan-300">
+      <div className="font-bold text-2xl text-[#009bb0]">
         <Link to="/">
           Cosmos</Link>
       </div>

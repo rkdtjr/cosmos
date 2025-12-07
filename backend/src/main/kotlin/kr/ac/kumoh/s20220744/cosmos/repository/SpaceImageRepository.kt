@@ -10,9 +10,7 @@ interface SpaceImageRepository: MongoRepository<SpaceImage, String> {
     ])
     fun findRandomImage(): List<SpaceImage>
 
-    @Aggregation(pipeline = [
-        "{ \$match: { 'description': { \$regex: ?0, \$options: 'i' } } }",
-        "{ \$sample: { size: 20 } }"
-    ])
-    fun searchImage(keyword: String): List<SpaceImage>
+    fun findAllByStatusNot(status: String): List<SpaceImage>
+
+    fun findTop5ByStatusOrderByCreatedAtAsc(status: String): List<SpaceImage>
 }

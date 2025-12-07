@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.*
 class SpaceImageController(
     private val spaceImageService: SpaceImageService
 ) {
-    @GetMapping("/random")
-    fun getRandomImage(): ResponseEntity<List<SpaceImage>> = ResponseEntity.ok(spaceImageService.getRandomImage())
-
     @GetMapping("/search")
-    fun searchImage(@RequestParam keyword: String): ResponseEntity<List<SpaceImage>> = ResponseEntity.ok(spaceImageService.searchImage(keyword))
+    fun searchImage(@RequestParam keyword: String, @RequestParam(defaultValue = "1") page: Int): ResponseEntity<List<SpaceImage>> {
+        if(keyword.isBlank()) return ResponseEntity.ok(spaceImageService.getRandomImage())
+
+        return ResponseEntity.ok(spaceImageService.searchImage(keyword,page))
+    }
 }

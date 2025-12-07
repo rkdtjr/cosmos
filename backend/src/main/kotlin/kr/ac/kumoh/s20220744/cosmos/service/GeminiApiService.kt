@@ -5,7 +5,7 @@ import com.google.genai.Client
 import com.google.genai.types.GenerateContentResponse
 import kr.ac.kumoh.s20220744.cosmos.repository.SpaceImageRepository
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.scheduling.annotation.Async
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 
@@ -16,18 +16,23 @@ class GeminiApiService(
     private val restClient: RestClient,
     private val spaceImageRepository: SpaceImageRepository
 ) {
-    @Async
-    fun analyzeAsync(nasaId: String, imageUrl: String, description: String?) {
-        val (isSpace, tags) = analyzeSpaceImage(imageUrl, description)
+    @Scheduled(fixedDelay = 20000)
+    fun processQueue() {
+        val pendingList = spaceImageRepository.findTop5ByStatusOrderByCreatedAtAsc("PENDING")
 
-        val image = spaceImageRepository.findById(nasaId).orElse(null) ?: return
+        pendingList.forEach { img ->
+            val (isSpace, tags) = analyzeSpaceImage(
+                img.originalUrl ?: img.previewUrl,
+                img.description
+            )
 
-        val updated = image.copy(
-            tags = tags,
-            status = if (isSpace) "DONE" else "FAILED"
-        )
+            val updated = img.copy(
+                tags = tags,
+                status = if (isSpace) "DONE" else "FAILED"
+            )
 
-        spaceImageRepository.save(updated)
+            spaceImageRepository.save(updated)
+        }
     }
     fun analyzeSpaceImage(imageUrl: String?, description: String?): Pair<Boolean, List<String>> {
         if (imageUrl.isNullOrBlank()) return false to emptyList()

@@ -12,24 +12,20 @@ class SpaceImageService(
 ) {
     fun getRandomImage(): List<SpaceImage> = spaceImageRepository.findRandomImage()
 
-    fun searchImage(keyword: String): List<SpaceImage> {
-        val nasaList = nasaApiService.searchNasaImage(keyword)
+    fun searchImage(keyword: String, page: Int ): List<SpaceImage> {
+        val nasaList = nasaApiService.searchNasaImage(keyword,page)
         val result = mutableListOf<SpaceImage>()
 
         nasaList.forEach { nasa ->
             val imageUrl = nasa.originalUrl ?: nasa.previewUrl ?: return@forEach
 
             val exist = spaceImageRepository.findById(nasa.nasaId).orElse(null)
-            if (exist != null) {
-                result.add(exist)
-
-                if (exist.status == "PENDING" || exist.status == "RETRY") {
-                    geminiApiService.analyzeAsync(exist.nasaId, exist.originalUrl ?: exist.previewUrl!!, exist.description)
+            if (exist != null ) {
+                if (exist.status != "FAILED") {
+                    result.add(exist)
                 }
-
                 return@forEach
             }
-
             // DB에 기본 데이터 먼저 저장 (tags는 비어있음)
             val saved = spaceImageRepository.save(
                 SpaceImage(
@@ -45,12 +41,8 @@ class SpaceImageService(
             )
             result.add(saved)
 
-            // Gemini 분석 비동기로 처리
-            geminiApiService.analyzeAsync(saved.nasaId, imageUrl, nasa.description)
         }
 
         return result
     }
-
-
 }

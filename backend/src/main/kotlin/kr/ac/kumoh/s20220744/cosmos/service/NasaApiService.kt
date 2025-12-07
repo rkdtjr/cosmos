@@ -34,7 +34,7 @@ class NasaApiService(
         val res = restClient.get().uri(url).retrieve().body(NasaApiResponse::class.java)
             ?: throw IllegalStateException("Null Response")
 
-        return res.collection.items.take(20).map { item ->
+        return res.collection.items.map { item ->
             val d = item.data.firstOrNull()
             NasaImage(
                 nasaId = d?.nasa_id ?: "",

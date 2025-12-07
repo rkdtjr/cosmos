@@ -46,4 +46,30 @@ nasa api와 gemini api를 이용해
   https://nano5.notion.site/Backend-229daf211d4281baa4c6e1ea7f02feb9?source=copy_link
 
 - React, Tailwind, React Router, TanStack Query를 사용하여 Backend에 접근하여 리스트를 보여주고 아이템을 클릭하면 세부 화면 출력하는 Frontend 개발
+
   https://nano5.notion.site/Frontend-229daf211d428175943acae3bbf4c3df?source=copy_link
+
+  ---
+# 설계 이후 변경점
+- APOD
+  1. APOD는 그날의 사진만 보여주도록 변경
+- Gallery
+  1. NASA API에서 받아오는대로 보여주고 스케쥴러를 통해 사진 분석
+  2. api를 "api/gallery/seach?keyword=moon&page=1" 처럼 페이지 단위로 받을 수 있도록 변경
+- Dictionary
+  1. 수정 요청 삭제 
+
+# 실행 사진
+<img width="521" height="279" alt="image" src="https://github.com/user-attachments/assets/3c101593-1a3e-4d5a-92d2-29675cf91cf4" />
+<img width="940" height="504" alt="image" src="https://github.com/user-attachments/assets/54bcdb74-3bef-4dbe-8f4d-c66eff64e9f8" />
+<img width="903" height="483" alt="image" src="https://github.com/user-attachments/assets/0e897c4b-ed51-4cbb-b2d9-00561c086bc3" />
+
+# 향후 개선
+- 날짜별 APOD 조회 기능
+- Gallery 프론트엔드쪽 처리 개선
+- Dictionary 수정 요청 기능(비로그인)
+
+# 참고
+Gemini API 무료 플랜의 일일 요청 제한이 1000에서 20이 되어버리는 바람에 태그가 원활히 안됨...
+
+

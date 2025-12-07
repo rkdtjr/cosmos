@@ -86,9 +86,9 @@ class GeminiApiService(
 
         } catch (e: Exception) {
             if (e.message?.contains("429") == true) {
-                println("⚠️ Rate limited — skipping.")
+                println("Rate limited — skipping.")
             } else {
-                println("❌ Error: ${e.message}")
+                println("Error: ${e.message}")
             }
             false to emptyList()
         }

@@ -10,9 +10,8 @@ data class Dictionary(
     val id: String,
     val name: String,
     val type: String,
-
     val description: String,
     val relatedTags: List<String> = emptyList(),
     val imageRef: String?,
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: String = LocalDateTime.now().toString()
 )

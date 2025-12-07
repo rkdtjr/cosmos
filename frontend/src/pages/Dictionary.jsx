@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getDictionary, getDictionaryDetail } from "../api/api";
+
 
 export default function Dictionary() {
   const [selectedId, setSelectedId] = useState(null);
 
   const { data: list, isLoading: listLoading } = useQuery({
     queryKey: ["dictionaryList"],
-    queryFn: () =>
-      fetch("http://localhost:8080/api/dictionary")
-        .then(res => res.json()),
+    queryFn: () => getDictionary(),
   });
 
   const { data: detail, isLoading: detailLoading } = useQuery({
     queryKey: ["dictionaryDetail", selectedId],
-    queryFn: () =>
-      fetch(`http://localhost:8080/api/dictionary/${selectedId}`)
-        .then(res => res.json()),
+    queryFn: () => getDictionaryDetail(selectedId),
     enabled: !!selectedId,
   });
 
@@ -64,7 +62,7 @@ export default function Dictionary() {
             )}
 
             <p className="text-gray-500 text-sm mt-3">
-              Created At: {detail.createdAt?.substring(0, 10)}
+              Created At: {detail.createdAt}
             </p>
           </>
         )}
